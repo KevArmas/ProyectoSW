@@ -78,17 +78,43 @@ class Firebase
         return $res;
     }
 
-    public function InsertProduct($categoria, $data){
-
-        $res = create_document($project, $categoria, $data);
-        if( !is_null($res) ) {
-            echo '<br>Insersión exitosa<br>';
+    public function InsertProduct($categoria, $id, $nombre){
+        // Construir la URL para enviar los datos del producto
+        $url = 'https://' . $this->project . '.firebaseio.com/productos/'. $categoria .'/' . $id . '.json';
+    
+        // Construir los datos en el formato deseado
+        $data = json_encode($nombre);
+    
+        // Configurar la solicitud cURL para enviar los datos del producto
+        $ch =  curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT'); // Utilizamos PUT para actualizar o crear el recurso
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($data)
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    
+        // Ejecutar la solicitud cURL
+        $response = curl_exec($ch);
+    
+        // Verificar si la solicitud fue exitosa
+        if($response === false) {
+            // Si la solicitud falla, puedes manejar el error aquí
+            return false;
         } else {
-            echo '<br>Insersión fallida<br>';
+            // Si la solicitud fue exitosa, devolver la respuesta
+            return $response;
         }
-
-        return date('Y-m-d H:i:s');
+    
+        // Cerrar la conexión cURL
+        curl_close($ch);
     }
+    
+    
+    
     
 }
 

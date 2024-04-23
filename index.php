@@ -214,13 +214,14 @@
         global $firebase;
 
         $reqPost = $request->getParsedBody();
-        $categoria = $reqPost['categoria'];
+        $categoria = strtolower($reqPost['categoria']);
         $nombre = $reqPost['nombre'];
         $id = $reqPost['id'];
 
-        $data = '{'.$id.':'.$nombre.'}';
+        // Concatenar el ID con el nombre del libro
+        $nombreLibro = $nombre;
 
-        $respuesta = $firebase->InsertProduct($categoria, $data);
+        $respuesta = $firebase->InsertProduct($categoria, $id, $nombreLibro);
 
         $response->write(json_encode($respuesta, JSON_PRETTY_PRINT));
         return $response;

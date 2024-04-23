@@ -26,15 +26,6 @@
         return $response;
     });
 
-    $app->post('/pruebapost', function($request, $response, $args){
-        $reqPost = $request->getParsedBody();
-        $val1 = $reqPost['val1'];
-        $val2 = $reqPost['val2'];
-
-        $response->write('Valores: '.$val1." ".$val2);
-        return $response;
-    });
-
     //--------------------Inicio Proyecto----------------------//
 
     //-------Funciones-------
@@ -100,25 +91,21 @@
 
     //Productos por categoria
 
-    function Categoria($user, $pass, $categoria) {
+    function obtenerListaCategoria($categoria) {
 
         global $firebase;
         $categoria = strtolower($categoria);
 
-        $RAuntenticar = Autenticar($user, $pass);
-
-        $status = $RAuntenticar['status'];
-
-        if($status == "OK"){
-            if($firebase->isCategoryInDB($categoria)){
-                $resp = array(
-                    'code' =>500,
-                    'message' => $firebase->obtainMessage(500),
-                    'data' => $firebase->obtainProducts($categoria),
-                    'status' => 'OK'
-                    );
-                return $resp;
-            }
+        if($firebase->isCategoryInDB($categoria)){
+            $resp = array(
+                'code' =>200,
+                'message' => $firebase->obtainMessage(200),
+                'data' => $firebase->obtainProducts($categoria),
+                'status' => 'OK'
+                );
+            return $resp;
+        }
+        else{
             $resp = array(
                 'code' =>300,
                 'message' => $firebase->obtainMessage(300),
@@ -127,31 +114,35 @@
                 );
             return $resp;
         }
-        $resp = array(
-            'code' =>$RAuntenticar['code'],
-            'message' => $RAuntenticar['message'],
-            'data' => "",
-            'status' => "error"
-            );
         return $resp;
     };
 
     //Productos por Detalles
 
-    function Detalles($clave) {
+    function obtenerDetalles($clave) {
 
         global $firebase;
-                $detalles=$firebase->obtainDetails($clave);
-                $resp = array(
-                    'code' =>500,
-                    'message' => $firebase->obtainMessage(500),
-                    'data' => $detalles,
-                    'status' => 'OK',
-                    'oferta' => ""
-                    );
-                return $resp;
 
-        
+        if($firebase->isLsbnInDB($clave)){
+            $detalles=$firebase->obtainDetails($clave);
+            $resp = array(
+                'code' =>201,
+                'message' => $firebase->obtainMessage(201),
+                'data' => $detalles,
+                'status' => 'OK',
+                'oferta' => ""
+                );
+        }
+        else{
+            $resp = array(
+                'code' =>301,
+                'message' => $firebase->obtainMessage(301),
+                'data' => "",
+                'status' => 'error',
+                'oferta' => ""
+                );
+        }
+            return $resp;
     };
 
     function saberCategoria($clave){
@@ -201,15 +192,12 @@
         return $response;
     });
 
-    //Operacion 1
+    //Operacion 1 Obtener lista de Productos por categoria
     $app->get('/productos[/{categoria}]', function($request, $response, $args){
-
-        $user = $request->getHeader('user')[0];
-        $pass = $request->getHeader('pass')[0];
 
         $categoria = $args["categoria"];
 
-        $respuesta = Categoria($user, $pass, $categoria);        
+        $respuesta = obtenerListaCategoria($categoria);        
 
         $response->write(json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         return $response;
@@ -220,16 +208,16 @@
 
         $clave = $args["clave"];
 
-        $respuesta = Detalles($clave);        
+        $respuesta = obtenerDetalles($clave);        
 
         $response->write(json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         return $response;
     });
 
 
-    //Operacion 3
+    //Operacion 3 Insertar Producto simple con formulario
 
-    $app->post('/producto', function($request, $response, $args){
+    $app->post('/productoformulario', function($request, $response, $args){
 
         global $firebase;
 
@@ -238,42 +226,265 @@
         $nombre = $reqPost['nombre'];
         $id = $reqPost['id'];
 
+        $data = array(
+            "ISBN" => $id,
+            "Autor" => "",
+            "Nombre" => $nombre,
+            "Editorial" => "",
+            "Fecha" => 0,
+            "Precio" => 0,
+            "Descuento" => 0
+        );
+
         $respuesta = $firebase->InsertProduct($categoria, $id, $nombre);
-        $respuesta = $firebase->InsertDetails($categoria, $id, $nombre);
+        $respuesta = $firebase->InsertDetails($id, $data);
 
         $response->write(json_encode($respuesta, JSON_PRETTY_PRINT));
         return $response;
     });
 
+
+    function validarJsonDetalles($json_data) {
+        $expected_keys = array(
+            "ISBN",
+            "Autor",
+            "Nombre",
+            "Editorial",
+            "Fecha",
+            "Precio",
+            "Descuento"
+        );
+        
+        // Verificar si el JSON tiene la misma cantidad de claves esperadas
+        if (count(array_diff($expected_keys, array_keys($json_data))) !== 0 || count(array_diff(array_keys($json_data), $expected_keys)) !== 0) {
+            return false;
+        }
+        
+        $expected_types = array(
+            "ISBN" => "string",
+            "Autor" => "string",
+            "Nombre" => "string",
+            "Editorial" => "string",
+            "Fecha" => "integer",
+            "Precio" => "double",
+            "Descuento" => "double"
+        );
+        
+        foreach ($expected_types as $key => $expected_type) {
+            if (gettype($json_data[$key]) !== $expected_type) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    function InsertarProducto($categoria, $data){
+        global $firebase;
+
+        $isbn = $data["ISBN"];
+        $nombre = $data["Nombre"];
+        
+        $ResultadoValidarJsonDetalles = validarJsonDetalles($data);
+        $ResultadoCategoriaExiste = $firebase->isCategoryInDB($categoria);
+        $ResultadoIsbnUsable = $firebase->isLsbnInDB($isbn);
+        
+
+        if($ResultadoCategoriaExiste){
+            if($ResultadoValidarJsonDetalles){
+
+                if($firebase->isLsbnInDB($isbn) == false){
+
+                    $firebase->InsertProduct($categoria, $isbn, $nombre);
+                    $firebase->InsertDetails($isbn, $data);
+                    
+                    $resp = array(
+                        'code' =>202,
+                        'message' => $firebase->obtainMessage(202),
+                        'data' => date('Y-m-d H:i:s'),
+                        'status' => 'OK'
+                        );
+                    return $resp;
+                }
+                else{
+                    $resp = array(
+                        'code' =>302,
+                        'message' => $firebase->obtainMessage(302),
+                        'data' => "",
+                        'status' => 'error'
+                        );
+                }
+                    return $resp;
+                
+            }else{
+                $resp = array(
+                    'code' =>303,
+                    'message' => $firebase->obtainMessage(303),
+                    'data' => "",
+                    'status' => 'error'
+                );
+                return $resp;
+            }
+        }
+
+        $resp = array(
+            'code' =>300,
+            'message' => $firebase->obtainMessage(300),
+            'data' => "",
+            'status' => 'error'
+        );
+
+        return $resp;
+    }
+    //Operacion 3 Insertar Producto
+    $app->post('/producto[/{categoria}]', function($request, $response, $args){
+
+        $categoria = $args["categoria"];
+        $body = $request->getBody()->getContents();
+        if(empty($body)) {
+            global $firebase;
+
+            $resp = array(
+                'code' =>400,
+                'message' => $firebase->obtainMessage(400),
+                'data' => "",
+                'status' => 'error'
+                );
+            $response->write(json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            return $response;
+        }
+
+        $data = json_decode($body, true);
+
+        $respuesta = InsertarProducto($categoria, $data);
+
+        $response->write(json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        return $response;
+    });
+
     //Operacion 4
+    function ActualizarProducto($clave, $data){
+        global $firebase;
+
+        $nombre = $data["Nombre"];
+        $categoria = saberCategoria($clave);
+        
+        $ResultadoValidarJsonDetalles = validarJsonDetalles($data);
+        $ResultadoCategoriaExiste = $firebase->isCategoryInDB($categoria);
+        
+
+        if($ResultadoCategoriaExiste){
+            if($ResultadoValidarJsonDetalles){
+                if($firebase->isLsbnInDB($clave)){
+
+                    $firebase->UpdateDetails($clave, $data);
+                    $firebase->UpdateName($categoria, $clave, $nombre);
+
+                    $resp = array(
+                        'code' =>203,
+                        'message' => $firebase->obtainMessage(203),
+                        'data' => date('Y-m-d H:i:s'),
+                        'status' => 'OK'
+                        );
+                    return $resp;
+                }
+                else{
+                    $resp = array(
+                        'code' =>301,
+                        'message' => $firebase->obtainMessage(301),
+                        'data' => "",
+                        'status' => 'error'
+                        );
+                }
+                    return $resp;
+                
+            }else{
+                $resp = array(
+                    'code' =>303,
+                    'message' => $firebase->obtainMessage(303),
+                    'data' => "",
+                    'status' => 'error'
+                );
+                return $resp;
+            }
+        }
+
+        $resp = array(
+            'code' =>300,
+            'message' => $firebase->obtainMessage(300),
+            'data' => "",
+            'status' => 'error'
+        );
+
+        return $resp;
+    }
 
     $app->put('/producto/detalles[/{clave}]', function($request, $response, $args){
 
         global $firebase;
 
-        $clave = $args["clave"];     
-        $data = $request->getParsedBody(); 
+        $clave = $args["clave"];
+    
+        $body = $request->getBody()->getContents();
+        if(empty($body)) {
+            global $firebase;
 
-        $respuesta = $firebase->UpdateDetails($clave, $data);
+            $resp = array(
+                'code' =>400,
+                'message' => $firebase->obtainMessage(400),
+                'data' => "",
+                'status' => 'error'
+                );
+            $response->write(json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            return $response;
+        }
 
-        $response->write(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $data = json_decode($body, true);
+
+        $respuesta = ActualizarProducto($clave, $data);
+
+        $response->write(json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         return $response;
     });
+
+    function EliminarProducto($clave){
+        global $firebase;
+        
+        if($firebase->isLsbnInDB($clave)){
+
+            $categoria = saberCategoria($clave);
+
+            $firebase->deleteProduct($categoria, $clave,);
+            $firebase->deleteDetails($clave);
+
+            $resp = array(
+                'code' =>204,
+                'message' => $firebase->obtainMessage(204),
+                'data' => date('Y-m-d H:i:s'),
+                'status' => 'OK'
+                );
+            return $resp;
+        }
+        else{
+            $resp = array(
+                'code' =>301,
+                'message' => $firebase->obtainMessage(301),
+                'data' => "",
+                'status' => 'error'
+                );
+        }
+            return $resp;
+
+        return $resp;
+    }
 
     $app->delete('/producto[/{clave}]', function($request, $response, $args){
 
         global $firebase;
-        
-        $clave = $args["clave"];
-        $categoria = saberCategoria($clave);
 
-        if($categoria == "Error"){
-            $response->write("clave no valida");
-            return $response;
-        }
-        
-        $respuesta = $firebase->deleteProduct($categoria, $clave);
-        $respuesta = $firebase->deleteDetails($clave);
+        $clave = $args["clave"];
+
+        $respuesta = EliminarProducto($clave);
 
         $response->write(json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         return $response;

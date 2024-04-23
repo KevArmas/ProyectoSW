@@ -103,10 +103,10 @@ class Firebase
         curl_close($ch);
     }
     
-    public function InsertDetails($categoria, $id, $nombre){
+    public function InsertDetails($id, $datacliente){
         $url = 'https://' . $this->project . '.firebaseio.com/detalles/'. $id . '.json';
     
-        $data = json_encode(array("Titulo" => $nombre));
+        $data = json_encode($datacliente);
     
         $ch =  curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -124,7 +124,7 @@ class Firebase
         if($response === false) {
             return false;
         } else {
-            return date('Y-m-d H:i:s');
+            return true;
         }
     
         curl_close($ch);
@@ -158,7 +158,42 @@ class Firebase
             return false;
         } else {
             // Si la solicitud fue exitosa, devolver la respuesta
-            return $response;
+            return date('Y-m-d H:i:s');
+        }
+
+        // Cerrar la conexión cURL
+        curl_close($ch);
+    }
+
+    public function UpdateName($categoria, $id, $nombre){
+        // Construir la URL para actualizar los datos del producto
+        $url = 'https://' . $this->project . '.firebaseio.com/productos/'. $categoria .'/' . $id . '.json';
+
+        // Construir los datos en el formato deseado
+        $data = json_encode($nombre);
+
+        // Configurar la solicitud cURL para enviar los datos del producto
+        $ch =  curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT'); // Utilizamos PUT para actualizar el recurso
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($data)
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        // Ejecutar la solicitud cURL
+        $response = curl_exec($ch);
+
+        // Verificar si la solicitud fue exitosa
+        if($response === false) {
+            // Si la solicitud falla, puedes manejar el error aquí
+            return false;
+        } else {
+            // Si la solicitud fue exitosa, devolver la respuesta
+            return date('Y-m-d H:i:s');
         }
 
         // Cerrar la conexión cURL
@@ -212,7 +247,7 @@ class Firebase
             return false;
         } else {
             // Si la solicitud fue exitosa, devolver la respuesta
-            return $response;
+            return date('Y-m-d H:i:s');
         }
     
         // Cerrar la conexión cURL

@@ -154,6 +154,26 @@
         
     };
 
+    function saberCategoria($clave){
+        $claveSinNumeros = preg_replace('/\d/', '', $clave);
+
+        // Convertir a mayúsculas
+        $claveEnMayusculas = strtoupper($claveSinNumeros);
+
+        if($claveEnMayusculas == "LIB"){
+            return "libros";
+        }
+
+        if($claveEnMayusculas == "COM"){
+            return "comics";
+        }
+
+        if($claveEnMayusculas == "MAN"){
+            return "mangas";
+        }
+
+        return "Error";
+    }
 
     //Operacion 0 con post
 
@@ -218,14 +238,48 @@
         $nombre = $reqPost['nombre'];
         $id = $reqPost['id'];
 
-        // Concatenar el ID con el nombre del libro
-        $nombreLibro = $nombre;
-
-        $respuesta = $firebase->InsertProduct($categoria, $id, $nombreLibro);
+        $respuesta = $firebase->InsertProduct($categoria, $id, $nombre);
+        $respuesta = $firebase->InsertDetails($categoria, $id, $nombre);
 
         $response->write(json_encode($respuesta, JSON_PRETTY_PRINT));
         return $response;
     });
+
+    //Operacion 4
+
+    $app->put('/producto/detalles[/{clave}]', function($request, $response, $args){
+
+        global $firebase;
+
+        $clave = $args["clave"];     
+        $data = $request->getParsedBody(); 
+
+        $respuesta = $firebase->UpdateDetails($clave, $data);
+
+        $response->write(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        return $response;
+    });
+
+    $app->delete('/producto[/{clave}]', function($request, $response, $args){
+
+        global $firebase;
+        
+        $clave = $args["clave"];
+        $categoria = saberCategoria($clave);
+
+        if($categoria == "Error"){
+            $response->write("clave no valida");
+            return $response;
+        }
+        
+        $respuesta = $firebase->deleteProduct($categoria, $clave);
+        $respuesta = $firebase->deleteDetails($clave);
+
+        $response->write(json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        return $response;
+    });
+
+    
 
     $app->run();
 ?>

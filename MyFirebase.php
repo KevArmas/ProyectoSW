@@ -77,6 +77,18 @@ class Firebase
         $res = $this->runCurl('respuestas', $code);
         return $res;
     }
+
+    public function InsertProduct($categoria, $data){
+
+        $res = create_document($project, $categoria, $data);
+        if( !is_null($res) ) {
+            echo '<br>Insersión exitosa<br>';
+        } else {
+            echo '<br>Insersión fallida<br>';
+        }
+
+        return date('Y-m-d H:i:s');
+    }
     
 }
 

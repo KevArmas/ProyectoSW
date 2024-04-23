@@ -11,12 +11,12 @@
     $firebase = new Fb($project);
 
     $app = AppFactory::create();
-    $app->setBasePath("/WS/Practicas/Proyectop1/Proyecto");
+    $app->setBasePath("/WS/Practicas/Proyecto/ProyectoSW");
 
 
     $app->get('/', function($request, $response, $args){
         // Genera el HTML para el botón de redirección
-        $buttonHtml = '<form action="http://localhost:8080/WS/Practicas/Proyectop1/Proyecto/formularioAutenticacionPost.html" method="GET">
+        $buttonHtml = '<form action="http://localhost:8080/WS/Practicas/Proyecto/ProyectoSW/formularioAutenticacionPost.html" method="GET">
         <button type="submit">Iniciar Sesion</button>
         </form>';
 
@@ -138,16 +138,9 @@
 
     //Productos por Detalles
 
-    function Detalles($user, $pass, $clave) {
+    function Detalles($clave) {
 
         global $firebase;
-
-        $RAuntenticar = Autenticar($user, $pass);
-
-        $status = $RAuntenticar['status'];
-
-        if($status == "OK"){
-            if($firebase->isLsbnInDB($clave)){
                 $detalles=$firebase->obtainDetails($clave);
                 $resp = array(
                     'code' =>500,
@@ -157,24 +150,8 @@
                     'oferta' => ""
                     );
                 return $resp;
-            }
-            $resp = array(
-                'code' =>301,
-                'message' => $firebase->obtainMessage(301),
-                'data' => "",
-                'status' => "error",
-                'oferta' => ""
-                );
-            return $resp;
-        }
-        $resp = array(
-            'code' =>$RAuntenticar['code'],
-            'message' => $RAuntenticar['message'],
-            'data' => "",
-            'status' => "error",
-            'oferta' => ""
-            );
-        return $resp;
+
+        
     };
 
 
@@ -221,28 +198,31 @@
     //Operacion 2
     $app->get('/detalles[/{clave}]', function($request, $response, $args){
 
-        $user = $request->getHeader('user')[0];
-        $pass = $request->getHeader('pass')[0];
-
         $clave = $args["clave"];
 
-        $respuesta = Detalles($user, $pass, $clave);        
+        $respuesta = Detalles($clave);        
 
         $response->write(json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         return $response;
     });
 
 
-    function($detalles){
-        global $firebase;
-
-    };
     //Operacion 3
 
-    $app->post('/producto[/categoria]', function($request, $response, $args){
-        
+    $app->post('/producto', function($request, $response, $args){
 
-        $response->write(json_encode($RespuestaT1, JSON_PRETTY_PRINT));
+        global $firebase;
+
+        $reqPost = $request->getParsedBody();
+        $categoria = $reqPost['categoria'];
+        $nombre = $reqPost['nombre'];
+        $id = $reqPost['id'];
+
+        $data = '{'.$id.':'.$nombre.'}';
+
+        $respuesta = $firebase->InsertProduct($categoria, $data);
+
+        $response->write(json_encode($respuesta, JSON_PRETTY_PRINT));
         return $response;
     });
 

@@ -454,7 +454,7 @@
 
             $categoria = saberCategoria($clave);
 
-            $firebase->deleteProduct($categoria, $clave,);
+            $firebase->deleteProduct($categoria, $clave,_);
             $firebase->deleteDetails($clave);
 
             $resp = array(

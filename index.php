@@ -11,7 +11,7 @@
     $firebase = new Fb($project);
 
     $app = AppFactory::create();
-    $app->setBasePath("/WS/Practicas/Proyecto/ProyectoSW");
+    $app->setBasePath("/WS/Practicas/   Proyecto/ProyectoSW");
 
 
     $app->get('/', function($request, $response, $args){

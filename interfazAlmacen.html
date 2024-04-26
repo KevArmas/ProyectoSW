@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas</title>
+</head>
+<body>
+    <form action="./productos" method="get" id="mostrarProductosCategoria">
+        <label for="buscarCategoria">Categoria de los Productos a Mostrar</label><br><br>
+        <input type="text" id="buscarCategoria" name="buscarCategoria" required><br><br>
+        <button>Buscar Categoria</button>
+    </form>
+
+    <form action="./detalles" method="get" id="mostrarDetallesProducto">
+        <label for="buscarProducto">Clave del Producto a Mostrar</label><br><br>
+        <input type="text" id="buscarProducto" name="buscarProducto" required><br><br>
+        <button>Buscar Producto</button>
+    </form>
+    
+    <form action="./producto" method="post" id="insertarProducto">
+        <label for="categoria">Categoria del Producto</label><br><br>
+        <input type="text" id="categoria" name="categoria" required><br><br>
+
+        <label for="ISBN">ISBN del Producto</label><br><br>
+        <input type="text" id="ISBN" name="ISBN" required><br><br>
+
+        <label for="Autor">Autor del Producto </label><br><br>
+        <input type="text" id="Autor" name="Autor" required><br><br>
+
+        <label for="Nombre">Nombre del Producto</label><br><br>
+        <input type="text" id="Nombre" name="Nombre" required><br><br>
+
+        <label for="Editorial">Editorial del Producto</label><br><br>
+        <input type="text" id="Editorial" name="Editorial" required><br><br>
+
+        <label for="Fecha">Fecha de Publicacion del Producto</label><br><br>
+        <input type="number" id="Fecha" name="Fecha" min="-9999" max="2024" required><br><br>
+
+        <label for="Precio">Precio del Producto</label><br><br>
+        <input type="number" id="Precio" name="Precio" step="0.01" min="1" required><br><br>
+
+        <label for="Descuento">Descuento del Producto</label><br><br>
+        <input type="number" id="Descuento" name="Descuento" step="0.01" min="0" required><br><br>
+
+        <button>Agregar Producto</button>
+    </form>
+
+    <form action="./producto/detalles" method="put" id="actualizarDetalles">
+        <label for="ISBN_Actualizar">ISBN del Producto</label><br><br>
+        <input type="text" id="ISBN_Actualizar" name="ISBN_Actualizar" required><br><br>
+
+        <label for="Autor_Actualizar">Autor del Producto </label><br><br>
+        <input type="text" id="Autor_Actualizar" name="Autor_Actualizar" required><br><br>
+
+        <label for="Nombre_Actualizar">Nombre del Producto</label><br><br>
+        <input type="text" id="Nombre_Actualizar" name="Nombre_Actualizar" required><br><br>
+
+        <label for="Editorial_Actualizar">Editorial del Producto</label><br><br>
+        <input type="text" id="Editorial_Actualizar" name="Editorial_Actualizar" required><br><br>
+
+        <label for="Fecha_Actualizar">Fecha de Publicacion del Producto</label><br><br>
+        <input type="number" id="Fecha_Actualizar" name="Fecha_Actualizar" min="-9999" max="2024" required><br><br>
+
+        <label for="Precio_Actualizar">Precio del Producto</label><br><br>
+        <input type="number" id="Precio_Actualizar" name="Precio_Actualizar" step="0.01" min="1" required><br><br>
+
+        <label for="Descuento_Actualizar">Descuento del Producto</label><br><br>
+        <input type="number" id="Descuento_Actualizar" name="Descuento_Actualizar" step="0.01" min="0" required><br><br>
+
+        <button>Actualizar Detalles Producto</button>
+    </form>
+    
+    <form action="./producto" method="delete" id="eliminarProducto">
+        <label for="ISBN_Eliminar">ISBN del Producto</label><br><br>
+        <input type="text" id="ISBN_Eliminar" name="ISBN_Eliminar" required><br><br>
+        <button>Eliminar Producto</button>
+    </form>
+
+    <div>
+        <!--Muestra los resultados-->
+        <p id="resultados" name="resultados">asd</p>
+    </div>
+    <script src="funcionamiento.js"></script>
+</body>
+</html>

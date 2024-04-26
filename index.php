@@ -15,14 +15,7 @@
 
 
     $app->get('/', function($request, $response, $args){
-        // Genera el HTML para el botón de redirección
-        $buttonHtml = '<form action="http://localhost:8080/WS/Practicas/Proyecto/ProyectoSW/formularioAutenticacionPost.html" method="GET">
-        <button type="submit">Iniciar Sesion</button>
-        </form>';
-
-        // Agrega el botón al cuerpo de la respuesta
-        $response->getBody()->write($buttonHtml);
-
+        $response->write("Serviocio SW");
         return $response;
     });
 
@@ -39,8 +32,8 @@
 
         if($user == ''){
             $resp = array(
-                "code" => 000,
-                "message" => "Se necesita un usuario",
+                'code' =>500,
+                'message' =>$firebase->obtainMessage(500),
                 "status" => "error"
             );
             
@@ -49,8 +42,8 @@
 
         if($pass == ''){
             $resp = array(
-                "code" => 000,
-                "message" => "Se necesita una contraseña",
+                'code' => 501,
+                'message' => $firebase->obtainMessage(501),
                 "status" => "error"
             );
             
@@ -144,7 +137,7 @@
         }
             return $resp;
     };
-
+    //Saber que categoria es con el ISBN
     function saberCategoria($clave){
         $claveSinNumeros = preg_replace('/\d/', '', $clave);
 
@@ -183,8 +176,13 @@
 
     $app->get('/autenticacion', function($request, $response, $args){
 
-        $user = $request->getHeader('user')[0];
-        $pass = $request->getHeader('pass')[0];
+        if(empty($request->getHeader('user')[0])){
+            $user = $request->getQueryParams()['user'] ?? null;
+            $pass = $request->getQueryParams()['pass'] ?? null;
+        }else{
+            $user = $request->getHeader('user')[0];
+            $pass = $request->getHeader('pass')[0];
+        }
 
         $RespuestaT1 = Autenticar($user, $pass);
 
@@ -244,6 +242,8 @@
     });
 
 
+    //validar json obtenido antes de procesarlo
+
     function validarJsonDetalles($json_data) {
         $expected_keys = array(
             "ISBN",
@@ -266,18 +266,34 @@
             "Nombre" => "string",
             "Editorial" => "string",
             "Fecha" => "integer",
-            "Precio" => "double",
-            "Descuento" => "double"
+            "Precio" => array("double", "integer"),
+            "Descuento" => array("double", "integer")
         );
         
         foreach ($expected_types as $key => $expected_type) {
-            if (gettype($json_data[$key]) !== $expected_type) {
-                return false;
+            if (is_array($expected_type)) {
+                $valid = false;
+                foreach ($expected_type as $type) {
+                    if (gettype($json_data[$key]) === $type) {
+                        $valid = true;
+                        break;
+                    }
+                }
+                if (!$valid) {
+                    return false;
+                }
+            } else {
+                if (gettype($json_data[$key]) !== $expected_type) {
+                    return false;
+                }
             }
         }
         
         return true;
     }
+    
+
+    //Insertar el producto en la categoria y con los detalles dados
 
     function InsertarProducto($categoria, $data){
         global $firebase;
@@ -356,13 +372,28 @@
 
         $data = json_decode($body, true);
 
+        $categoriaOK = saberCategoria($data["ISBN"]);
+
+        if($categoriaOK != $categoria){
+            global $firebase;
+
+            $resp = array(
+                'code' =>305,
+                'message' => $firebase->obtainMessage(305),
+                'data' => "",
+                'status' => 'error'
+                );
+            $response->write(json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            return $response;
+        }
+
         $respuesta = InsertarProducto($categoria, $data);
 
         $response->write(json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         return $response;
     });
 
-    //Operacion 4
+    //Funcion ActualizarProducto
     function ActualizarProducto($clave, $data){
         global $firebase;
 
@@ -419,6 +450,8 @@
         return $resp;
     }
 
+    //operacion para obtener los detalles de un producto con el ISBN
+
     $app->put('/producto/detalles[/{clave}]', function($request, $response, $args){
 
         global $firebase;
@@ -447,6 +480,7 @@
         return $response;
     });
 
+    //Eliminar producto con el ISBN dado
     function EliminarProducto($clave){
         global $firebase;
         
@@ -478,6 +512,8 @@
         return $resp;
     }
 
+    // operacion para eliminar el producto 
+
     $app->delete('/producto[/{clave}]', function($request, $response, $args){
 
         global $firebase;
@@ -493,4 +529,7 @@
     
 
     $app->run();
+
+    //<!--variables de sesion-->
 ?>
+

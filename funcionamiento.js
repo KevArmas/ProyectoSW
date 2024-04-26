@@ -127,7 +127,12 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
-            resultados.textContent = JSON.stringify(data, null, 2);
+            if(data.code == 202){
+                resultados.textContent = `Mensaje: ${data.message} Fecha: ${data.data}`;
+            }
+            else{
+                resultados.textContent = `Mensaje: ${data.message}`;
+            }
         })
         .catch(error => {
             console.error('Error al agregar producto:', error);
@@ -147,7 +152,12 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
-            resultados.textContent = JSON.stringify(data, null, 2);
+            if(data.code == 203){
+                resultados.textContent = `Mensaje: ${data.message} Fecha: ${data.data}`;
+            }
+            else{
+                resultados.textContent = `Mensaje: ${data.message}`;
+            }
         })
         .catch(error => {
             console.error('Error al actualizar detalles del producto:', error);
@@ -167,7 +177,6 @@ document.addEventListener("DOMContentLoaded", function() {
             else{
                 resultados.textContent = `Mensaje: ${data.message}`;
             }
-            
         })
         .catch(error => {
             console.error('Error al eliminar producto:', error);

@@ -161,7 +161,13 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
-            resultados.textContent = JSON.stringify(data, null, 2);
+            if(data.code == 204){
+                resultados.textContent = `Mensaje: ${data.message} Fecha: ${data.data}`;
+            }
+            else{
+                resultados.textContent = `Mensaje: ${data.message}`;
+            }
+            
         })
         .catch(error => {
             console.error('Error al eliminar producto:', error);

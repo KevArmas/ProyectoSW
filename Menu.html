@@ -3,12 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu</title>
+    <title>Menú</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .menu-item {
+            width: 60%; /* Ajusta esto al tamaño deseado */
+            height: 20%; /* Ajusta esto al tamaño deseado */
+            margin: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item:hover {
+            transform: scale(1.05);
+        }
+
+        .menu-item img {
+            width: 50px; /* Ajusta esto al tamaño del logo */
+            height: 50px; /* Ajusta esto al tamaño del logo */
+            margin-right: 20px;
+        }
+
+        .menu-item a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            font-size: 24px; /* Ajusta esto al tamaño deseado */
+        }
+    </style>
 </head>
 <body>
-
-    <a href="./interfazAlmacen.html">Almacen</a>
-    <a href="./interfazVentas.html">Ventas</a>
-    <a href="./IniciarSesion.html">Salir</a>
+    <div class="menu-item">
+        <img src="logo-almacen.png" alt="Almacén"> <!-- Añade tu logo aquí -->
+        <a href="./interfazAlmacen.html">Almacén</a>
+    </div>
+    <div class="menu-item">
+        <img src="logo-ventas.png" alt="Ventas"> <!-- Añade tu logo aquí -->
+        <a href="./interfazVentas.html">Ventas</a>
+    </div>
+    <div class="menu-item">
+        <img src="logo-salir.png" alt="Salir"> <!-- Añade tu logo aquí -->
+        <a href="./IniciarSesion.html">Salir</a>
+    </div>
 </body>
 </html>

@@ -4,24 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ventas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        form {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 38px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #495057;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #resultados {
+            width: 90%;
+            max-width: 500px;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
     <form action="./productos" method="get" id="mostrarProductosCategoria">
-        <label for="buscarCategoria">Categoria de los Productos a Mostrar</label><br><br>
-        <input type="text" id="buscarCategoria" name="buscarCategoria" required><br><br>
-        <button>Buscar Categoria</button>
+        <label for="buscarCategoria">Categoría de los Productos a Mostrar</label>
+        <input type="text" id="buscarCategoria" name="buscarCategoria" required>
+        <button type="submit">Buscar Categoría</button>
     </form>
 
     <form action="./detalles" method="get" id="mostrarDetallesProducto">
-        <label for="buscarProducto">Clave del Producto a Mostrar</label><br><br>
-        <input type="text" id="buscarProducto" name="buscarProducto" required><br><br>
-        <button>Buscar Producto</button>
+        <label for="buscarProducto">Clave del Producto a Mostrar</label>
+        <input type="text" id="buscarProducto" name="buscarProducto" required>
+        <button type="submit">Buscar Producto</button>
     </form>
-    
 
-    <div>
-        <!--Muestra los resultados-->
-        <div id="resultados"></div>
+    <div id="resultados">
+        <!-- Aquí se mostrarán los resultados -->
     </div>
     <script src="./funcionamientoVentas.js"></script>
 </body>

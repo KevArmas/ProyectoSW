@@ -21,11 +21,11 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 let formattedResults = ""; // Variable para almacenar los resultados formateados
                 for (const [ISBN, Nombre] of Object.entries(data.data)) {
-                    formattedResults += `ISBN: ${ISBN}<br>Nombre: ${Nombre}<br>--------------------------------`;
+                    formattedResults += `ISBN: ${ISBN}<br>Nombre: ${Nombre}<br>--------------------------------<br>`;
                 }
     
                 if(data.code == 200){
-                    resultados.innerHTML = `Mensaje: Categoria encontrada Exitosamente <br>--------------------------------<br> Productos: ${formattedResults}`;
+                    resultados.innerHTML = `Mensaje: Categoria encontrada Exitosamente <br>--------------------------------<br> Productos: <br> ${formattedResults}`;
                 }
                 else{
                     resultados.innerHTML = `Mensaje:  Categoria No encontrada`;
